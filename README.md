@@ -2,7 +2,12 @@
 
 > **The first security gateway that makes AI tool access _auditable_, not just allow/deny.**
 
-**Gemini 3 Hackathon Submission** | [Live Pipeline Demo](#live-pipeline-demo) | [Quick Start](#quick-start-30-seconds) | [7 Gemini Integration Points](#7-gemini-3-integration-points)
+**第4回 Agentic AI Hackathon with Google Cloud 提出作品** | [Live Pipeline Demo](#live-pipeline-demo) | [Quick Start](#quick-start-30-seconds) | [7 Gemini 3 Integration Points](#7-gemini-3-integration-points)
+
+[![Hackathon](https://img.shields.io/badge/Hackathon-4th%20Agentic%20AI%20with%20Google%20Cloud-4285F4?style=flat-square&logo=googlecloud)](https://zenn.dev/hackathons/google-cloud-japan-ai-hackathon-vol4)
+[![Gemini 3](https://img.shields.io/badge/Powered%20by-Gemini%203-FF6F00?style=flat-square&logo=google)](https://ai.google.dev/)
+[![Tests](https://img.shields.io/badge/Tests-449%20passed-brightgreen?style=flat-square)]()
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python)]()
 
 ---
 
@@ -234,8 +239,8 @@ Evidence-based web security analysis inspired by rendering pipeline internals:
 
 ```bash
 # Clone and setup
-git clone https://github.com/minorumochizuki2015-ship-it/mcp-gateway-gemini3.git
-cd mcp-gateway-gemini3
+git clone https://github.com/minorumochizuki2015-ship-it/mcp-gateway-gemini3-japan.git
+cd mcp-gateway-gemini3-japan
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
@@ -326,7 +331,7 @@ gcloud run services describe mcp-gateway --format='value(status.url)'
 ## Test Suite
 
 ```bash
-# 416 tests
+# 449 tests (416 core + 33 MCP proxy)
 python -m pytest tests/ -v
 
 # Gemini integration tests only
@@ -418,6 +423,7 @@ src/mcp_gateway/
   scanner.py          # Static + Semantic + Advanced Attack Detection
   redteam.py          # Attack generation + safety evaluation
   causal_sandbox.py   # Evidence-based web security (Gemini 3)
+  mcp_proxy.py        # MCP Transparent Security Proxy (3-thread, full-duplex)
   mcp_security_server.py # MCP Security Server (stdio + HTTP transport)
   sanitizer.py        # Multi-level prompt injection defense
   evidence.py         # JSONL evidence trail + Memory Ledger
@@ -452,6 +458,39 @@ Agent calls: browser_navigate(url="https://suspicious-site.tk/login")
 ```
 
 **No agent modification needed.** The gateway transparently scans URL-bearing tool calls. Evidence is emitted for every interception decision.
+
+## MCP Transparent Security Proxy (NEW)
+
+**Zero-config security for any MCP server.** The proxy sits between an MCP client (Claude Code, Gemini CLI) and any MCP server, transparently intercepting `tools/call` requests through the Gateway security API:
+
+```
+MCP Client (Claude Code)
+    │  stdio
+    ▼
+┌──────────────────────────┐
+│  MCP Security Proxy      │  ← mcp_proxy.py (3-thread architecture)
+│  Thread 1: client→server │     Intercept tools/call → Gateway API
+│  Thread 2: server→client │     Forward responses
+│  Thread 3: stderr drain  │     Error forwarding
+└──────────┬───────────────┘
+           │  stdio
+           ▼
+    MCP Server (filesystem, etc.)
+```
+
+```bash
+# Protect any MCP server with one command
+python -m src.mcp_gateway.mcp_proxy \
+  --gateway-url http://localhost:4100 \
+  --fail-closed \
+  -- npx -y @modelcontextprotocol/server-filesystem .
+```
+
+**Features**:
+- Full-duplex stdio transport (newline-delimited JSON)
+- `--fail-closed`: Block tool calls if Gateway is unreachable (default: allow)
+- SHA256 content hashing for evidence trail
+- 33 dedicated tests
 
 ## Connecting AI Agents
 
