@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  gateway:
+    build: .
+    ports:
+      - "4100:8080"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3-flash-preview}
+      - MCP_GATEWAY_ADMIN_TOKEN_FILE=/run/secrets/admin_token
+      - MCP_GATEWAY_UPSTREAM_API_KEY_FILE=/run/secrets/upstream_api_key
+      - MCP_GATEWAY_DEMO_MODE=${MCP_GATEWAY_DEMO_MODE:-false}
+      - LEDGER_PATH=/data/ledger.jsonl
+      - LEDGER_ERROR_POLICY=closed
+    secrets:
+      - admin_token
+      - upstream_api_key
+    volumes:
+      - gateway-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8080/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+secrets:
+  admin_token:
+    file: .local/admin_token.txt
+  upstream_api_key:
+    file: .local/upstream_api_key.txt
+
+volumes:
+  gateway-data:

@@ -1,0 +1,1275 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCP Gateway Suite - Web Sandbox</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+JP:wght@400;600;700&display=swap');
+
+    html { background: #f9fafb; }
+    body { opacity: 1; transition: opacity 0.08s ease-out; }
+    body.loading { opacity: 0; }
+
+    :root {
+      --primary: #0066ff;
+      --primary-dark: #0052cc;
+      --success: #10b981;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --radius: 12px;
+      --bg: var(--gray-50);
+      --card: #fff;
+      --border: var(--gray-200);
+      --text: var(--gray-900);
+      --muted: var(--gray-600);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', 'Noto Sans JP', 'Segoe UI', sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.5;
+      padding-top: 56px;
+    }
+    a { color: var(--primary); text-decoration: none; }
+
+    .nav {
+      background: var(--gray-900); padding: 0 24px;
+      display: flex; align-items: center; height: 56px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-brand {
+      color: #fff; font-weight: 700; font-size: 18px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-brand svg { width: 28px; height: 28px; }
+    .nav-links { display: flex; gap: 4px; margin-left: 40px; flex-wrap: wrap; }
+    .nav-link {
+      color: var(--gray-300); text-decoration: none; padding: 8px 16px;
+      border-radius: 6px; font-size: 14px; font-weight: 500; transition: all 0.15s;
+    }
+    .nav-link:hover { color: #fff; background: rgba(255,255,255,0.1); }
+    .nav-link:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+    .nav-link.active { color: #fff; background: var(--primary); }
+    .nav-status { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--gray-300); font-size: 13px; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); display: inline-block; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+    .muted { color: var(--muted); font-size: 14px; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 24px; box-shadow: var(--shadow-sm);
+    }
+    .card + .card { margin-top: 16px; }
+
+    .scan-form {
+      display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;
+    }
+    @media (max-width: 480px) {
+      .scan-form .field { flex: 1 1 100%; }
+      .scan-form .btn-primary { flex: 1 1 100%; }
+    }
+    .scan-form .field { flex: 1; }
+    .scan-form label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--muted); }
+    .scan-form input[type="url"] {
+      width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px;
+      font-size: 14px; font-family: inherit; outline: none;
+    }
+    .scan-form input[type="url"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,102,255,0.1); }
+
+    .btn-primary {
+      background: var(--primary); color: #fff; border: none; border-radius: 6px;
+      padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: background 0.15s; white-space: nowrap; min-height: 44px;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-primary:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .demo-btn {
+      padding: 6px 14px; border: 1px solid var(--border); border-radius: 6px;
+      font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+      font-family: inherit; background: var(--gray-50);
+    }
+    .demo-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .demo-btn-danger { border-color: #fca5a5; color: #dc2626; background: #fef2f2; }
+    .demo-btn-danger:hover { background: #fee2e2; }
+    .demo-btn-safe { border-color: #86efac; color: #16a34a; background: #f0fdf4; }
+    .demo-btn-safe:hover { background: #dcfce7; }
+    .demo-btn-warn { border-color: #fcd34d; color: #d97706; background: #fffbeb; }
+    .demo-btn-warn:hover { background: #fef3c7; }
+
+    .verdict-card {
+      display: flex; align-items: center; gap: 20px; padding: 20px 24px;
+    }
+    .verdict-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 20px; border-radius: 20px; font-weight: 700; font-size: 16px;
+    }
+    .verdict-badge.benign { background: #d1fae5; color: #065f46; }
+    .verdict-badge.phishing { background: #fee2e2; color: #991b1b; }
+    .verdict-badge.malware { background: #fee2e2; color: #991b1b; }
+    .verdict-badge.clickjacking { background: #fef3c7; color: #78350f; }
+    .verdict-badge.scam { background: #fef3c7; color: #78350f; }
+    .verdict-badge.deceptive_ui { background: #fef3c7; color: #78350f; }
+
+    .compare-panel { margin-top: 16px; display: none; }
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 640px) { .compare-grid { grid-template-columns: 1fr; } }
+    .compare-col { border-radius: var(--radius); padding: 20px; border: 2px solid var(--gray-200); }
+    .compare-col.traditional { background: var(--gray-50); border-color: var(--gray-200); }
+    .compare-col.semantic { background: #eff6ff; border-color: #3b82f6; }
+    .compare-col-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .compare-col-title { font-size: 14px; font-weight: 700; }
+    .compare-col.traditional .compare-col-title { color: var(--gray-600); }
+    .compare-col.semantic .compare-col-title { color: #1d4ed8; }
+    .compare-verdict { font-size: 20px; font-weight: 800; margin: 8px 0 4px; }
+    .compare-verdict.safe { color: var(--gray-600); }
+    .compare-verdict.threat { color: #dc2626; }
+    .compare-detail { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .compare-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .compare-badge.none { background: var(--gray-100); color: var(--gray-600); }
+    .compare-badge.detected { background: #fee2e2; color: #991b1b; }
+
+    .verdict-meta { font-size: 13px; color: var(--muted); }
+    .verdict-meta strong { color: var(--text); }
+
+    .confidence-bar {
+      width: 120px; height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden;
+    }
+    .confidence-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+    .confidence-fill.high { background: var(--success); }
+    .confidence-fill.medium { background: var(--warn); }
+    .confidence-fill.low { background: var(--danger); }
+
+    .section-title {
+      font-size: 15px; font-weight: 700; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-title .count {
+      background: var(--gray-100); color: var(--muted); font-size: 12px;
+      padding: 2px 8px; border-radius: 10px;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; font-weight: 600; color: var(--muted); padding: 8px 12px; border-bottom: 2px solid var(--border); }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+
+    .pill {
+      display: inline-block; padding: 2px 10px; border-radius: 10px;
+      font-size: 12px; font-weight: 600;
+    }
+    .pill.danger { background: #fee2e2; color: #991b1b; }
+    .pill.warn { background: #fef3c7; color: #92400e; }
+    .pill.ok { background: #d1fae5; color: #065f46; }
+    .pill.info { background: #dbeafe; color: #1e40af; }
+
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid var(--gray-200); border-top: 2px solid var(--primary);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty { text-align: center; padding: 40px; color: var(--muted); }
+    .error { color: var(--danger); }
+
+    .lang-btn {
+      padding: 6px 12px; border: 1px solid var(--gray-300); border-radius: 6px;
+      background: #fff; cursor: pointer; font-size: 13px; font-weight: 500;
+      transition: all 0.15s; color: var(--gray-700);
+    }
+    .lang-btn:hover { background: var(--gray-50); }
+    .lang-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    #resultSection { display: none; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .bundle-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+    .bundle-meta .item { font-size: 13px; }
+    .bundle-meta .item .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .bundle-meta .item .val { font-weight: 600; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; word-break: break-all; }
+
+    .indicators-list { list-style: none; padding: 0; }
+    .indicators-list li { padding: 4px 0; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .indicators-list li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--danger); flex-shrink: 0; }
+
+    /* Verdicts history */
+    .verdicts-table { margin-top: 16px; }
+    tr.clickable { cursor: pointer; transition: background 0.1s; }
+    tr.clickable:hover { background: var(--gray-50); }
+    .expand-icon { display: inline-block; font-size: 10px; color: #9ca3af; transition: transform 0.15s; }
+    tr.clickable.expanded .expand-icon { transform: rotate(90deg); color: var(--primary); }
+    .detail-row td { background: var(--gray-50); padding: 12px 16px; border-bottom: 2px solid var(--border); }
+    .detail-content { font-size: 13px; }
+    .detail-label { font-weight: 600; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .detail-summary { margin-bottom: 8px; line-height: 1.6; }
+    .indicator-tag { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin: 2px; }
+    .evidence-tag { display: inline-block; background: var(--gray-100); color: var(--gray-700); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-family: monospace; margin: 2px; }
+    .ev-summary-box { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px 14px; margin-top: 10px; font-size: 12px; line-height: 1.7; }
+    .ev-summary-box .ev-line { display: flex; gap: 8px; }
+    .ev-summary-box .ev-lbl { font-weight: 700; color: #0369a1; min-width: 80px; white-space: nowrap; }
+    .ev-summary-box .ev-val { color: #111827; }
+    .ev-summary-box .action-deny { color: #dc2626; font-weight: 700; }
+    .ev-summary-box .action-allow { color: #16a34a; font-weight: 700; }
+    .ev-summary-box .action-warn { color: #d97706; font-weight: 700; }
+    .cross-link { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--primary); text-decoration: none; }
+    .cross-link:hover { text-decoration: underline; }
+  </style>
+</head>
+
+<body>
+  <nav class="nav">
+    <div class="nav-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" role="img" aria-label="MCP Gateway Suite">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+      </svg>
+      MCP Gateway Suite
+    </div>
+    <div class="nav-links">
+      <a href="settings_environments.html" class="nav-link">Environments</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="scans.html" class="nav-link">Scans</a>
+      <a href="allowlist.html" class="nav-link">AllowList</a>
+      <a href="web_sandbox.html" class="nav-link">Web Sandbox</a>
+      <a href="audit_log.html" class="nav-link">Audit Log</a>
+      <a href="evidence_pack.html" class="nav-link">Evidence Pack</a>
+    </div>
+    <div class="nav-status">
+      <span class="status-dot"></span>
+      Demo Mode
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1 id="pageTitle">Causal Web Sandbox</h1>
+        <p class="muted" id="pageSubtitle">Evidence-based web security analysis powered by Gemini structured output</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 13px; color: var(--muted);">Language:</span>
+        <div style="display: flex; gap: 4px;">
+          <button type="button" class="lang-btn" id="langJa" data-lang="ja">JA</button>
+          <button type="button" class="lang-btn" id="langEn" data-lang="en">EN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gemini API Key Setup -->
+    <div class="card" id="geminiSetupCard">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+        <div style="font-weight: 600; font-size: 15px;" id="geminiKeyTitle">Gemini API Key</div>
+        <span id="geminiStatus" style="font-size: 12px; padding: 2px 8px; border-radius: 8px; font-weight: 600;"></span>
+      </div>
+      <p class="muted" style="margin-bottom: 12px;" id="geminiKeyDesc">Enter your Google AI Studio API key to enable Gemini-powered analysis across all features (Council, Scanner, RedTeam, Web Sandbox).</p>
+      <form id="geminiKeyForm" style="display: flex; gap: 8px; align-items: flex-end;">
+        <div class="field" style="flex: 1; margin-bottom: 0;">
+          <input type="password" id="geminiKeyInput" placeholder="AIza..." autocomplete="off" style="font-family: monospace;">
+        </div>
+        <button type="submit" class="btn-primary" id="geminiKeyBtn">Set Key</button>
+      </form>
+      <div id="geminiKeyError" class="error" style="margin-top: 6px; display: none;"></div>
+    </div>
+
+    <!-- Scan Form -->
+    <div class="card">
+      <form id="scanForm" class="scan-form">
+        <div class="field">
+          <label for="urlInput" id="targetUrlLabel">Target URL</label>
+          <input type="url" id="urlInput" placeholder="https://example.com" required>
+        </div>
+        <button type="submit" class="btn-primary" id="scanBtn">Scan</button>
+      </form>
+      <div id="scanError" class="error" style="margin-top: 8px; display: none;"></div>
+      <div id="scanLoading" style="margin-top: 12px; display: none;">
+        <span class="spinner"></span>
+        <span class="muted" style="margin-left: 8px;" id="scanLoadingText">Scanning page...</span>
+      </div>
+      <!-- Demo scan buttons -->
+      <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+        <span class="muted" style="font-size: 12px;" id="demoLabel">Try demo:</span>
+        <button class="demo-btn demo-btn-danger" onclick="demoScan('phishing')" id="demoBtnPhishing">Phishing Page</button>
+        <button class="demo-btn demo-btn-safe" onclick="demoScan('clean')" id="demoBtnClean">Clean Page</button>
+        <button class="demo-btn demo-btn-warn" onclick="demoScan('clickjack')" id="demoBtnClickjack">Clickjack Page</button>
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div id="resultSection">
+      <!-- Verdict -->
+      <div class="card verdict-card" id="verdictCard" style="margin-top: 16px;">
+        <div>
+          <span class="verdict-badge" id="verdictBadge">-</span>
+        </div>
+        <div style="flex: 1;">
+          <div id="verdictSummary" style="font-size: 14px;"></div>
+          <div class="verdict-meta" style="margin-top: 4px;">
+            <span id="lblConfidence">Confidence</span>: <strong id="verdictConfidence">-</strong>
+            <div class="confidence-bar" style="display: inline-block; vertical-align: middle; margin-left: 8px;">
+              <div class="confidence-fill" id="confidenceFill" style="width: 0%;"></div>
+            </div>
+            &nbsp;&middot;&nbsp; <span id="lblAction">Action</span>: <strong id="verdictAction">-</strong>
+            &nbsp;&middot;&nbsp; <span id="verdictMethodWrap">Method: <strong id="verdictMethod">-</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hash vs Semantic Comparison -->
+      <div class="compare-panel" id="comparePanel">
+        <div class="section-title" style="margin-bottom: 12px;">
+          <span id="compareTitle">Detection Comparison</span>
+          <span class="count" style="background: #dbeafe; color: #1d4ed8;" id="compareBadge">Why Gemini 3?</span>
+        </div>
+        <div class="compare-grid">
+          <div class="compare-col traditional">
+            <div class="compare-col-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              <span class="compare-col-title" id="compareTraditionalTitle">Rule-based Only</span>
+            </div>
+            <div class="compare-verdict safe" id="compareTraditionalVerdict">NO THREATS DETECTED</div>
+            <div class="compare-detail" id="compareTraditionalDetail">
+              Pattern matching: DGA detection, suspicious TLD, brand impersonation checks. No semantic understanding of page intent.
+            </div>
+            <div style="margin-top: 10px;">
+              <span class="compare-badge none" id="compareTraditionalBadge">0 matches</span>
+            </div>
+          </div>
+          <div class="compare-col semantic">
+            <div class="compare-col-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 2v10l6.93 4"/><circle cx="12" cy="12" r="3"/></svg>
+              <span class="compare-col-title" id="compareSemanticTitle">With Gemini 3 Agent</span>
+            </div>
+            <div class="compare-verdict threat" id="compareSemanticVerdict">-</div>
+            <div class="compare-detail" id="compareSemanticDetail">
+              Gemini 3 reasons about page intent, analyzes DOM structure for deceptive patterns,
+              and detects prompt injection invisible to rule-based scanning.
+            </div>
+            <div style="margin-top: 10px;">
+              <span class="compare-badge detected" id="compareSemanticBadge">-</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attack Narrative + MCP Threats (Gemini-only) -->
+      <div class="grid-2" style="margin-top: 16px;" id="geminiInsightsRow">
+        <div class="card" id="narrativeCard" style="display:none;">
+          <div class="section-title"><span id="narrativeTitle">Attack Narrative</span> <span class="count" style="background:#fef3c7;color:#92400e;">Gemini 3</span></div>
+          <p id="narrativeText" style="font-size:13px;line-height:1.6;color:var(--gray-700);"></p>
+        </div>
+        <div class="card" id="mcpThreatsCard" style="display:none;">
+          <div class="section-title"><span id="mcpThreatsTitle">MCP-Specific Threats</span> <span class="count" style="background:#fee2e2;color:#991b1b;" id="mcpThreatCount">0</span></div>
+          <ul id="mcpThreatsList" style="font-size:13px;line-height:1.6;padding-left:18px;color:var(--gray-700);"></ul>
+        </div>
+      </div>
+
+      <!-- Bundle Info + Risk Indicators -->
+      <div class="grid-2" style="margin-top: 16px;">
+        <div class="card">
+          <div class="section-title"><span id="pageBundleTitle">Page Bundle</span></div>
+          <div class="bundle-meta" id="bundleMeta"></div>
+        </div>
+        <div class="card">
+          <div class="section-title"><span id="riskIndicatorsTitle">Risk Indicators</span> <span class="count" id="indicatorCount">0</span></div>
+          <ul class="indicators-list" id="indicatorsList"></ul>
+          <div class="empty" id="indicatorsEmpty" style="display: none;">No risk indicators found</div>
+        </div>
+      </div>
+
+      <!-- DOM Threats -->
+      <div class="card" style="margin-top: 16px;">
+        <div class="section-title"><span id="domThreatsTitle">DOM Threats</span> <span class="count" id="domCount">0</span></div>
+        <table id="domTable">
+          <thead id="domThead">
+            <tr><th>Tag</th><th>Threat Type</th><th>Selector</th><th>Attributes</th></tr>
+          </thead>
+          <tbody id="domBody"></tbody>
+        </table>
+        <div class="empty" id="domEmpty" style="display: none;">No DOM threats detected</div>
+      </div>
+
+      <!-- Network Traces -->
+      <div class="card" style="margin-top: 16px;">
+        <div class="section-title"><span id="netTracesTitle">Network Traces</span> <span class="count" id="netCount">0</span></div>
+        <table id="netTable">
+          <thead id="netThead">
+            <tr><th>Source</th><th>URL</th><th>Method</th><th>Threat</th></tr>
+          </thead>
+          <tbody id="netBody"></tbody>
+        </table>
+        <div class="empty" id="netEmpty" style="display: none;">No suspicious network requests</div>
+      </div>
+
+      <!-- A11y Issues -->
+      <div class="card" style="margin-top: 16px;" id="a11ySection">
+        <div class="section-title"><span id="a11yIssuesTitle">Accessibility Issues</span> <span class="count" id="a11yCount">0</span></div>
+        <table id="a11yTable">
+          <thead id="a11yThead">
+            <tr><th>Role</th><th>Name</th><th>Deceptive Label</th></tr>
+          </thead>
+          <tbody id="a11yBody"></tbody>
+        </table>
+        <div class="empty" id="a11yEmpty" style="display: none;">No deceptive labels detected</div>
+      </div>
+    </div>
+
+    <!-- Recent Verdicts -->
+    <div class="card" style="margin-top: 24px;">
+      <div class="section-title" id="historyTitle">Recent Verdicts <span class="count" id="historyCount">0</span></div>
+      <table class="verdicts-table" id="historyTable">
+        <thead id="historyThead">
+          <tr><th>URL</th><th>Classification</th><th>Confidence</th><th>Action</th><th>Method</th><th>Time</th></tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+      <div class="empty" id="historyEmpty">No scans yet. Enter a URL above to start.</div>
+    </div>
+  </div>
+
+  <script src="mock_data.js"></script>
+  <script src="api_client.js"></script>
+  <script>
+    // Auto-set active nav link
+    (function () {
+      if (!window.location || !window.location.pathname) return;
+      const currentFile = window.location.pathname.split('/').pop() || '';
+      document.querySelectorAll('.nav-link').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentFile) link.classList.add('active');
+        else link.classList.remove('active');
+      });
+    })();
+  </script>
+  <script>
+    // XSS prevention: escape all untrusted API data before innerHTML insertion
+    function escapeHtml(str) {
+      if (str == null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // --- Gemini API Key Setup ---
+    const geminiKeyForm = document.getElementById('geminiKeyForm');
+    const geminiKeyInput = document.getElementById('geminiKeyInput');
+    const geminiKeyBtn = document.getElementById('geminiKeyBtn');
+    const geminiKeyError = document.getElementById('geminiKeyError');
+    const geminiStatus = document.getElementById('geminiStatus');
+    const geminiSetupCard = document.getElementById('geminiSetupCard');
+
+    function updateGeminiStatus(configured, preview) {
+      const d = WS_I18N[getWsLang()] || WS_I18N.en;
+      _wsGeminiConfigured = configured;
+      if (configured) {
+        geminiStatus.textContent = '\u2713 Configured';
+        geminiStatus.style.background = 'var(--success)';
+        geminiStatus.style.color = '#fff';
+        geminiKeyInput.placeholder = d.geminiKeyPlaceholderConfigured;
+        geminiKeyBtn.textContent = d.geminiUpdateBtn;
+        if (document.getElementById('geminiKeyDesc')) {
+          document.getElementById('geminiKeyDesc').textContent = d.geminiKeyDescConfigured;
+        }
+      } else {
+        geminiStatus.textContent = d.geminiNotConfigured;
+        geminiStatus.style.background = 'var(--danger)';
+        geminiStatus.style.color = '#fff';
+        geminiKeyInput.placeholder = d.geminiKeyPlaceholder;
+        geminiKeyBtn.textContent = d.geminiSetBtn;
+        if (document.getElementById('geminiKeyDesc')) {
+          document.getElementById('geminiKeyDesc').textContent = d.geminiKeyDesc;
+        }
+      }
+    }
+
+    async function checkGeminiStatus() {
+      try {
+        const token = (typeof getAdminToken === 'function') ? getAdminToken() : (window.SUITE_ADMIN_TOKEN || '');
+        const res = await fetch('/api/config/gemini-status', {
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+        });
+        if (res.ok) {
+          const data = await res.json();
+          updateGeminiStatus(data.configured, data.key_preview);
+        }
+      } catch (e) {
+        updateGeminiStatus(false, '');
+      }
+    }
+
+    geminiKeyForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      geminiKeyError.style.display = 'none';
+      const key = geminiKeyInput.value.trim();
+      if (!key) {
+        geminiKeyError.textContent = 'Please enter a valid API key.';
+        geminiKeyError.style.display = '';
+        return;
+      }
+      geminiKeyBtn.disabled = true;
+      geminiKeyBtn.textContent = (WS_I18N[getWsLang()] || WS_I18N.en).geminiSetting;
+      try {
+        const authToken = (typeof getAdminToken === 'function') ? getAdminToken() : (window.SUITE_ADMIN_TOKEN || '');
+        const hdrs = { 'Content-Type': 'application/json' };
+        if (authToken) hdrs['Authorization'] = 'Bearer ' + authToken;
+        const res = await fetch('/api/config/gemini-key', {
+          method: 'POST',
+          headers: hdrs,
+          body: JSON.stringify({ api_key: key }),
+        });
+        if (res.ok) {
+          geminiKeyInput.value = '';
+          await checkGeminiStatus();
+        } else {
+          const data = await res.json().catch(() => ({}));
+          geminiKeyError.textContent = data.detail || 'Failed to set key.';
+          geminiKeyError.style.display = '';
+        }
+      } catch (err) {
+        geminiKeyError.textContent = 'Network error: ' + err.message;
+        geminiKeyError.style.display = '';
+      } finally {
+        geminiKeyBtn.disabled = false;
+      }
+    });
+
+    checkGeminiStatus();
+
+    // --- Scan Form ---
+    const scanForm = document.getElementById('scanForm');
+    const urlInput = document.getElementById('urlInput');
+    const scanBtn = document.getElementById('scanBtn');
+    const scanError = document.getElementById('scanError');
+    const scanLoading = document.getElementById('scanLoading');
+    const resultSection = document.getElementById('resultSection');
+
+    function classForClassification(cls) {
+      if (cls === 'benign') return 'ok';
+      if (['phishing', 'malware'].includes(cls)) return 'danger';
+      return 'warn';
+    }
+
+    function truncUrl(url, maxLen) {
+      if (!url) return '-';
+      return url.length > (maxLen || 60) ? url.slice(0, maxLen || 60) + '...' : url;
+    }
+
+    function renderVerdict(data) {
+      resultSection.style.display = 'block';
+      const v = data.verdict;
+      const lang = getWsLang();
+      const d = WS_I18N[lang] || WS_I18N.en;
+
+      // Badge
+      const badge = document.getElementById('verdictBadge');
+      badge.textContent = v.classification.toUpperCase();
+      badge.className = 'verdict-badge ' + v.classification;
+
+      // Summary
+      document.getElementById('verdictSummary').textContent = v.summary;
+      document.getElementById('verdictConfidence').textContent = (v.confidence * 100).toFixed(0) + '%';
+      document.getElementById('verdictAction').textContent = v.recommended_action;
+      document.getElementById('lblConfidence').textContent = d.lblConfidence;
+      document.getElementById('lblAction').textContent = d.lblAction;
+      var methodWrap = document.getElementById('verdictMethodWrap');
+      if (data.eval_method === 'gemini') {
+        methodWrap.textContent = d.geminiOutput;
+      } else {
+        methodWrap.innerHTML = escapeHtml(d.thMethod) + ': <strong>' + escapeHtml(data.eval_method) + '</strong>';
+      }
+
+      // Confidence bar
+      const fill = document.getElementById('confidenceFill');
+      fill.style.width = (v.confidence * 100) + '%';
+      fill.className = 'confidence-fill ' + (v.confidence >= 0.7 ? 'high' : v.confidence >= 0.4 ? 'medium' : 'low');
+
+      // Section titles
+      document.getElementById('pageBundleTitle').textContent = d.pageBundle;
+      document.getElementById('riskIndicatorsTitle').textContent = d.riskIndicators;
+      document.getElementById('domThreatsTitle').textContent = d.domThreats;
+      document.getElementById('netTracesTitle').textContent = d.networkTraces;
+      document.getElementById('a11yIssuesTitle').textContent = d.a11yIssues;
+
+      // Result table headers
+      document.getElementById('domThead').innerHTML = '<tr><th>' + [d.thTag, d.thThreatType, d.thSelector, d.thAttributes].map(escapeHtml).join('</th><th>') + '</th></tr>';
+      document.getElementById('netThead').innerHTML = '<tr><th>' + [d.thSource, d.thUrl, d.thNetMethod, d.thThreat].map(escapeHtml).join('</th><th>') + '</th></tr>';
+      document.getElementById('a11yThead').innerHTML = '<tr><th>' + [d.thRole, d.thName, d.thDeceptiveLabel].map(escapeHtml).join('</th><th>') + '</th></tr>';
+
+      // Bundle (guard against null when URL is unreachable)
+      const b = data.bundle || {};
+      document.getElementById('bundleMeta').innerHTML = [
+        { label: d.bundleSha, val: b.sha256 ? b.sha256.slice(0, 16) + '...' : '-' },
+        { label: d.bundleSize, val: b.content_length ? (b.content_length / 1024).toFixed(1) + ' KB' : '-' },
+        { label: d.bundleStatus, val: b.status_code || '-' },
+        { label: d.bundleResources, val: b.resource_count },
+        { label: d.bundleBlocked, val: (b.blocked_resources || []).length },
+        { label: d.bundleId, val: b.bundle_id ? b.bundle_id.slice(0, 8) + '...' : '-' },
+      ].map(i => `<div class="item"><div class="label">${escapeHtml(i.label)}</div><div class="val">${escapeHtml(i.val)}</div></div>`).join('');
+
+      // Detection comparison panel (real data from both rule-based + Gemini)
+      var comparePanel = document.getElementById('comparePanel');
+      if (comparePanel) {
+        comparePanel.style.display = 'block';
+        var cls = v.classification || 'benign';
+
+        // Rule-based side: use real fast_scan results from backend
+        var rv = data.rule_based_verdict;
+        if (rv) {
+          var rCls = rv.classification || 'benign';
+          var rConf = rv.confidence || 0;
+          var rIndicators = (rv.risk_indicators || []).length;
+          document.getElementById('compareTraditionalVerdict').textContent = rCls.toUpperCase() + (rCls === 'benign' ? '' : ' DETECTED');
+          document.getElementById('compareTraditionalVerdict').className = 'compare-verdict ' + (rCls === 'benign' ? 'safe' : 'threat');
+          document.getElementById('compareTraditionalBadge').textContent = rIndicators > 0
+            ? rIndicators + (d.compareIndicators || ' risk indicators found')
+            : (d.compare0Matches || '0 pattern matches');
+          document.getElementById('compareTraditionalBadge').className = 'compare-badge ' + (rCls === 'benign' ? 'none' : 'detected');
+          // Show rule-based detail with action
+          var rDetail = document.getElementById('compareTraditionalDetail');
+          if (rDetail) {
+            rDetail.textContent = rv.summary || d.compareRuleDetail || 'Rule-based pattern matching: DGA detection, suspicious TLD, brand impersonation. No semantic understanding.';
+          }
+        } else {
+          document.getElementById('compareTraditionalVerdict').textContent = d.compareNoData || 'N/A';
+          document.getElementById('compareTraditionalBadge').textContent = d.compareNoRuleData || 'Rule-based scan unavailable';
+          document.getElementById('compareTraditionalBadge').className = 'compare-badge none';
+        }
+
+        // Gemini side: show actual scan result, demo_gemini, or fallback notice
+        var hasGemini = data.eval_method === 'gemini' || data.eval_method === 'demo_gemini';
+        if (hasGemini) {
+          // Gemini (real or demo) — show the richer verdict
+          var sevText = cls.toUpperCase() + (cls === 'benign' ? '' : ' DETECTED');
+          document.getElementById('compareSemanticVerdict').textContent = sevText;
+          document.getElementById('compareSemanticVerdict').className = 'compare-verdict ' + (cls === 'benign' ? 'safe' : 'threat');
+          document.getElementById('compareSemanticVerdict').style.color = '';
+          var indicatorCount = (v.risk_indicators || []).length;
+          var badgeText = indicatorCount + (d.compareIndicators || ' risk indicators found');
+          if (data.eval_method === 'demo_gemini') badgeText += ' (demo)';
+          document.getElementById('compareSemanticBadge').textContent = badgeText;
+          document.getElementById('compareSemanticBadge').className = 'compare-badge ' + (cls === 'benign' ? 'none' : 'detected');
+          // Show Gemini detail: attack narrative or summary
+          var gDetail = document.getElementById('compareSemanticDetail');
+          if (gDetail) {
+            gDetail.textContent = v.attack_narrative || v.summary || '';
+          }
+        } else if (!_wsGeminiConfigured) {
+          // Gemini truly not configured — show CTA to set API key
+          document.getElementById('compareSemanticVerdict').textContent = d.geminiNotActive || 'GEMINI NOT ACTIVE';
+          document.getElementById('compareSemanticVerdict').className = 'compare-verdict';
+          document.getElementById('compareSemanticVerdict').style.color = '#6b7280';
+          document.getElementById('compareSemanticBadge').textContent = d.geminiConfigCta || 'Set API key above to enable';
+          document.getElementById('compareSemanticBadge').className = 'compare-badge none';
+        } else {
+          // Gemini IS configured but this scan used rule-based fallback
+          var sevText2 = cls.toUpperCase() + (cls === 'benign' ? '' : ' DETECTED');
+          document.getElementById('compareSemanticVerdict').textContent = sevText2;
+          document.getElementById('compareSemanticVerdict').className = 'compare-verdict ' + (cls === 'benign' ? 'safe' : 'threat');
+          document.getElementById('compareSemanticVerdict').style.color = '';
+          var indicatorCount2 = (v.risk_indicators || []).length;
+          var fbText = indicatorCount2 + (d.compareIndicators || ' risk indicators found');
+          fbText += ' (' + (d.geminiFallbackNote || 'rule-based fallback') + ')';
+          document.getElementById('compareSemanticBadge').textContent = fbText;
+          document.getElementById('compareSemanticBadge').className = 'compare-badge ' + (cls === 'benign' ? 'none' : 'detected');
+        }
+        // i18n titles
+        if (d.compareTraditionalTitle) document.getElementById('compareTraditionalTitle').textContent = d.compareTraditionalTitle;
+        if (d.compareSemanticTitle) document.getElementById('compareSemanticTitle').textContent = d.compareSemanticTitle;
+        if (d.compareTitle) document.getElementById('compareTitle').textContent = d.compareTitle;
+
+        // Highlight differential: if rule-based missed but Gemini caught
+        if (rv && rv.classification === 'benign' && cls !== 'benign') {
+          document.getElementById('compareBadge').textContent = d.compareGeminiCaught || 'Gemini 3 caught what rules missed';
+          document.getElementById('compareBadge').style.background = '#fee2e2';
+          document.getElementById('compareBadge').style.color = '#991b1b';
+        } else if (rv && rv.classification !== 'benign' && cls !== 'benign') {
+          document.getElementById('compareBadge').textContent = d.compareBothDetected || 'Both detected threats';
+          document.getElementById('compareBadge').style.background = '#fef3c7';
+          document.getElementById('compareBadge').style.color = '#92400e';
+        } else {
+          document.getElementById('compareBadge').textContent = d.compareWhyGemini || 'Why Gemini 3?';
+          document.getElementById('compareBadge').style.background = '#dbeafe';
+          document.getElementById('compareBadge').style.color = '#1d4ed8';
+        }
+      }
+
+      // Attack narrative + MCP threats (Gemini insights)
+      var narrativeCard = document.getElementById('narrativeCard');
+      var mcpCard = document.getElementById('mcpThreatsCard');
+      var narrative = v.attack_narrative || '';
+      var mcpThreats = v.mcp_specific_threats || [];
+      if (narrative) {
+        narrativeCard.style.display = '';
+        document.getElementById('narrativeText').textContent = narrative;
+      } else {
+        narrativeCard.style.display = 'none';
+      }
+      if (mcpThreats.length > 0) {
+        mcpCard.style.display = '';
+        document.getElementById('mcpThreatCount').textContent = mcpThreats.length;
+        document.getElementById('mcpThreatsList').innerHTML = mcpThreats.map(function(t) {
+          return '<li>' + escapeHtml(t) + '</li>';
+        }).join('');
+      } else {
+        mcpCard.style.display = 'none';
+      }
+
+      // Risk indicators
+      const indicators = v.risk_indicators || [];
+      document.getElementById('indicatorCount').textContent = indicators.length;
+      const indList = document.getElementById('indicatorsList');
+      const indEmpty = document.getElementById('indicatorsEmpty');
+      if (indicators.length > 0) {
+        indList.innerHTML = indicators.map(i => `<li>${escapeHtml(i)}</li>`).join('');
+        indList.style.display = '';
+        indEmpty.style.display = 'none';
+      } else {
+        indList.style.display = 'none';
+        indEmpty.style.display = '';
+      }
+
+      // DOM threats
+      const dom = data.dom_threats || [];
+      document.getElementById('domCount').textContent = dom.length;
+      const domBody = document.getElementById('domBody');
+      const domEmpty = document.getElementById('domEmpty');
+      const domTable = document.getElementById('domTable');
+      if (dom.length > 0) {
+        domBody.innerHTML = dom.map(d =>
+          `<tr><td><code>${escapeHtml(d.tag)}</code></td><td><span class="pill danger">${escapeHtml(d.threat_type)}</span></td><td style="font-size:12px;font-family:monospace;">${escapeHtml(d.selector)}</td><td style="font-size:12px;">${escapeHtml(JSON.stringify(d.attributes || {}))}</td></tr>`
+        ).join('');
+        domTable.style.display = '';
+        domEmpty.style.display = 'none';
+      } else {
+        domTable.style.display = 'none';
+        domEmpty.style.display = '';
+      }
+
+      // Network traces (show suspicious only, or all if few)
+      const net = data.network_traces || [];
+      const suspicious = net.filter(n => n.is_suspicious);
+      const showNet = suspicious.length > 0 ? suspicious : net.slice(0, 10);
+      document.getElementById('netCount').textContent = suspicious.length + ' / ' + net.length;
+      const netBody = document.getElementById('netBody');
+      const netEmpty = document.getElementById('netEmpty');
+      const netTable = document.getElementById('netTable');
+      if (showNet.length > 0) {
+        netBody.innerHTML = showNet.map(n =>
+          `<tr><td><span class="pill info">${escapeHtml(n.source)}</span></td><td style="font-size:12px;" title="${escapeHtml(n.url)}">${escapeHtml(truncUrl(n.url, 50))}</td><td>${escapeHtml(n.method)}</td><td>${n.is_suspicious ? '<span class="pill warn">' + escapeHtml(n.threat_type) + '</span>' : '-'}</td></tr>`
+        ).join('');
+        netTable.style.display = '';
+        netEmpty.style.display = 'none';
+      } else {
+        netTable.style.display = 'none';
+        netEmpty.style.display = '';
+      }
+
+      // A11y
+      const a11y = data.a11y_deceptive || [];
+      document.getElementById('a11yCount').textContent = a11y.length;
+      const a11yBody = document.getElementById('a11yBody');
+      const a11yEmpty = document.getElementById('a11yEmpty');
+      const a11yTable = document.getElementById('a11yTable');
+      if (a11y.length > 0) {
+        a11yBody.innerHTML = a11y.map(a =>
+          `<tr><td>${escapeHtml(a.role)}</td><td>${escapeHtml(a.name)}</td><td>${a.deceptive_label ? '<span class="pill warn">' + escapeHtml(d.deceptive) + '</span>' : '-'}</td></tr>`
+        ).join('');
+        a11yTable.style.display = '';
+        a11yEmpty.style.display = 'none';
+      } else {
+        a11yTable.style.display = 'none';
+        a11yEmpty.style.display = '';
+      }
+      // Empty states
+      document.getElementById('indicatorsEmpty').textContent = d.noIndicators;
+      document.getElementById('domEmpty').textContent = d.noDomThreats;
+      document.getElementById('netEmpty').textContent = d.noNetTraces;
+      document.getElementById('a11yEmpty').textContent = d.noA11y;
+
+      // Share verdict to dashboard via sessionStorage for cross-page freshness
+      try {
+        var stored = JSON.parse(sessionStorage.getItem('mcp_latest_verdicts') || '[]');
+        if (!Array.isArray(stored)) stored = [];
+        stored.push({
+          run_id: (data.bundle || {}).bundle_id || ('ws-' + Date.now()),
+          url: data.url || '',
+          classification: v.classification,
+          confidence: v.confidence,
+          recommended_action: v.recommended_action,
+          summary: v.summary || '',
+          timestamp: new Date().toISOString(),
+          eval_method: data.eval_method || 'unknown'
+        });
+        // Keep last 20 verdicts
+        if (stored.length > 20) stored = stored.slice(-20);
+        sessionStorage.setItem('mcp_latest_verdicts', JSON.stringify(stored));
+      } catch (_) { /* sessionStorage unavailable */ }
+    }
+
+    var CLS_MAP = {
+      benign: 'clsBenign', phishing: 'clsPhishing', malware: 'clsMalware',
+      clickjacking: 'clsClickjacking', scam: 'clsScam', deceptive_ui: 'clsDeceptiveUi'
+    };
+    function translateClassification(cls, dl) {
+      var key = CLS_MAP[cls];
+      return (key && dl[key]) ? dl[key] : cls;
+    }
+    function renderHistoryTable(lang) {
+      var dl = WS_I18N[lang || getWsLang()] || WS_I18N.en;
+      var verdicts = _wsVerdicts || [];
+      document.getElementById('historyCount').textContent = verdicts.length;
+      var body = document.getElementById('historyBody');
+      var empty = document.getElementById('historyEmpty');
+      var table = document.getElementById('historyTable');
+      if (verdicts.length > 0) {
+        body.innerHTML = verdicts.slice().reverse().map(function(v, i) {
+          var summary = v.summary || '';
+          var shortSummary = summary.length > 50 ? summary.slice(0, 50) + '...' : summary;
+          var indicators = (v.risk_indicators || []).map(function(r) { return '<span class="indicator-tag">' + escapeHtml(r) + '</span>'; }).join(' ');
+          var evidence = (v.evidence_refs || []).map(function(e) { return '<span class="evidence-tag">' + escapeHtml(e) + '</span>'; }).join(' ');
+          var hasDetail = summary || indicators || evidence;
+          var mainRow = '<tr class="clickable' + (hasDetail ? '' : ' no-detail') + '" data-idx="' + i + '">'
+            + '<td style="width:24px;text-align:center;">' + (hasDetail ? '<span class="expand-icon">&#9654;</span>' : '') + '</td>'
+            + '<td title="' + escapeHtml(v.url) + '">' + escapeHtml(truncUrl(v.url, 36)) + '</td>'
+            + '<td><span class="pill ' + classForClassification(v.classification) + '">' + escapeHtml(translateClassification(v.classification, dl)) + '</span></td>'
+            + '<td>' + ((v.confidence || 0) * 100).toFixed(0) + '%</td>'
+            + '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;font-size:13px;color:var(--gray-600,#4b5563);">' + escapeHtml(shortSummary || '-') + '</td>'
+            + '<td>' + escapeHtml(v.recommended_action) + '</td>'
+            + '<td style="font-size:12px;">' + (v.timestamp ? new Date(v.timestamp).toLocaleString() : '-') + '</td>'
+            + '</tr>';
+          var detailRow = '';
+          if (hasDetail) {
+            // Evidence Summary (3-line template)
+            var evLabels = lang === 'ja'
+              ? { detection: '検知', evidence: '根拠', action: '推奨アクション' }
+              : { detection: 'Detection', evidence: 'Evidence', action: 'Action' };
+            var actionCls = v.recommended_action === 'block' ? 'action-deny' : v.recommended_action === 'warn' ? 'action-warn' : 'action-allow';
+            var evSummaryHtml = '<div class="ev-summary-box">'
+              + '<div class="ev-line"><span class="ev-lbl">' + evLabels.detection + ':</span><span class="ev-val">' + escapeHtml(translateClassification(v.classification, dl)) + (summary ? ' - ' + escapeHtml(summary.slice(0, 60)) : '') + '</span></div>'
+              + '<div class="ev-line"><span class="ev-lbl">' + evLabels.evidence + ':</span><span class="ev-val">' + (indicators || evidence || '-') + '</span></div>'
+              + '<div class="ev-line"><span class="ev-lbl">' + evLabels.action + ':</span><span class="ev-val ' + actionCls + '">' + escapeHtml(v.recommended_action || '-') + '</span></div>'
+              + '</div>';
+            // Cross-link to Audit Log
+            var crossLink = v.run_id
+              ? '<a class="cross-link" href="audit_log.html?evidence_id=' + encodeURIComponent(v.run_id) + '">&#8594; ' + (lang==='ja'?'Audit Log で確認':'View in Audit Log') + '</a>'
+              : '';
+            detailRow = '<tr class="detail-row" data-detail="' + i + '" style="display:none;"><td colspan="7"><div class="detail-content">'
+              + (summary ? '<div class="detail-label">' + escapeHtml(dl.detailSummary) + '</div><div class="detail-summary">' + escapeHtml(summary) + '</div>' : '')
+              + (indicators ? '<div class="detail-label">' + escapeHtml(dl.detailRiskIndicators) + '</div><div>' + indicators + '</div>' : '')
+              + (evidence ? '<div class="detail-label" style="margin-top:8px;">' + escapeHtml(dl.detailEvidence) + '</div><div>' + evidence + '</div>' : '')
+              + evSummaryHtml + crossLink
+              + '</div></td></tr>';
+          }
+          return mainRow + detailRow;
+        }).join('');
+        body.querySelectorAll('.clickable').forEach(function(row) {
+          row.addEventListener('click', function() {
+            var idx = row.getAttribute('data-idx');
+            var detail = body.querySelector('[data-detail="' + idx + '"]');
+            if (detail) {
+              var open = detail.style.display !== 'none';
+              detail.style.display = open ? 'none' : '';
+              row.classList.toggle('expanded', !open);
+            }
+          });
+        });
+        table.style.display = '';
+        empty.style.display = 'none';
+      } else {
+        table.style.display = 'none';
+        empty.style.display = '';
+      }
+    }
+
+    async function loadHistory() {
+      try {
+        const data = await window.apiClient.fetchWebSandboxVerdicts();
+        _wsVerdicts = (data && data.verdicts) || [];
+        renderHistoryTable(getWsLang());
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    scanForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const url = urlInput.value.trim();
+      if (!url) return;
+
+      // URL validation
+      try {
+        var parsed = new URL(url);
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+          scanError.textContent = getWsLang() === 'ja'
+            ? 'http:// または https:// で始まるURLを入力してください'
+            : 'Please enter a URL starting with http:// or https://';
+          scanError.style.display = '';
+          return;
+        }
+      } catch (_) {
+        scanError.textContent = getWsLang() === 'ja'
+          ? '有効なURLを入力してください（例: https://example.com）'
+          : 'Please enter a valid URL (e.g. https://example.com)';
+        scanError.style.display = '';
+        return;
+      }
+
+      scanError.style.display = 'none';
+      scanLoading.style.display = '';
+      scanBtn.disabled = true;
+      resultSection.style.display = 'none';
+
+      try {
+        const data = await window.apiClient.scanWebSandbox(url);
+        renderVerdict(data);
+        loadHistory();
+      } catch (err) {
+        scanError.textContent = err.message || 'Scan failed';
+        scanError.style.display = '';
+      } finally {
+        scanLoading.style.display = 'none';
+        scanBtn.disabled = false;
+      }
+    });
+
+    // --- Demo Scan (pre-configured pages, no SSRF issues) ---
+    var _DEMO_MOCK_RESULTS = {
+      phishing: {
+        url: "https://login-apple-verify.tk/secure",
+        bundle: { bundle_id: "demo-phish-001", url: "https://login-apple-verify.tk/secure", sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", resource_count: 4, blocked_resources: [], timestamp: new Date().toISOString(), content_length: 8234, status_code: 200 },
+        dom_security: [
+          { tag: "iframe", attributes: {"src": "https://evil.com/steal", "style": "display:none"}, suspicious: true, threat_type: "hidden_iframe", selector: "body>iframe" },
+          { tag: "form", attributes: {"action": "https://evil-collect.tk/harvest"}, suspicious: true, threat_type: "deceptive_form", selector: "div.login>form" },
+          { tag: "input", attributes: {"type": "password", "name": "passwd"}, suspicious: true, threat_type: "credential_harvest", selector: "form>input[type=password]" }
+        ],
+        a11y_tree: [
+          { role: "form", name: "Sign in to Apple ID", description: "", suspicious: true, deceptive_label: true, children: [] },
+          { role: "textbox", name: "Email", description: "", suspicious: false, deceptive_label: false, children: [] },
+          { role: "button", name: "Continue", description: "", suspicious: false, deceptive_label: false, children: [] }
+        ],
+        network_traces: [
+          { url: "https://evil-collect.tk/harvest", method: "POST", source: "form_action", is_suspicious: true, threat_type: "credential_exfiltration" },
+          { url: "https://evil.com/steal", method: "GET", source: "iframe_src", is_suspicious: true, threat_type: "hidden_content_load" }
+        ],
+        verdict: { classification: "phishing", confidence: 0.94, risk_indicators: ["hidden_iframe", "deceptive_form", "external_credential_harvest", "fake_apple_login"], evidence_refs: ["form[action*=evil-collect]", "iframe[style*=display:none]", "input[type=password]"], recommended_action: "block", summary: "Fake Apple ID login page with hidden iframe exfiltrating credentials to evil-collect.tk" },
+        eval_method: "gemini-3-flash-preview"
+      },
+      clean: {
+        url: "https://docs.example.com/api/reference",
+        bundle: { bundle_id: "demo-clean-001", url: "https://docs.example.com/api/reference", sha256: "abc123def456", resource_count: 2, blocked_resources: [], timestamp: new Date().toISOString(), content_length: 12500, status_code: 200 },
+        dom_security: [],
+        a11y_tree: [
+          { role: "banner", name: "API Documentation", description: "", suspicious: false, deceptive_label: false, children: [] },
+          { role: "navigation", name: "Sidebar", description: "", suspicious: false, deceptive_label: false, children: [] },
+          { role: "main", name: "Content", description: "", suspicious: false, deceptive_label: false, children: [] }
+        ],
+        network_traces: [
+          { url: "https://docs.example.com/assets/style.css", method: "GET", source: "link_href", is_suspicious: false, threat_type: "none" }
+        ],
+        verdict: { classification: "benign", confidence: 0.98, risk_indicators: [], evidence_refs: [], recommended_action: "allow", summary: "Standard API documentation site with no security threats detected" },
+        eval_method: "gemini-3-flash-preview"
+      },
+      clickjack: {
+        url: "https://free-tools.example.net/converter",
+        bundle: { bundle_id: "demo-click-001", url: "https://free-tools.example.net/converter", sha256: "789ghi012jkl", resource_count: 5, blocked_resources: [], timestamp: new Date().toISOString(), content_length: 6700, status_code: 200 },
+        dom_security: [
+          { tag: "iframe", attributes: {"src": "https://bank.example.com/transfer", "style": "opacity:0;position:absolute;z-index:999"}, suspicious: true, threat_type: "transparent_iframe_overlay", selector: "body>iframe.overlay" },
+          { tag: "div", attributes: {"style": "position:relative;z-index:1000;cursor:pointer"}, suspicious: true, threat_type: "clickjack_bait", selector: "div.download-btn" }
+        ],
+        a11y_tree: [
+          { role: "button", name: "Download Now", description: "", suspicious: true, deceptive_label: true, children: [] },
+          { role: "none", name: "", description: "transparent overlay", suspicious: true, deceptive_label: false, children: [] }
+        ],
+        network_traces: [
+          { url: "https://bank.example.com/transfer", method: "GET", source: "iframe_src", is_suspicious: true, threat_type: "clickjack_target" },
+          { url: "https://free-tools.example.net/track?click=1", method: "GET", source: "script_src", is_suspicious: true, threat_type: "click_tracking" }
+        ],
+        verdict: { classification: "clickjacking", confidence: 0.87, risk_indicators: ["transparent_iframe_overlay", "z_index_manipulation", "banking_site_framing"], evidence_refs: ["iframe[style*=opacity:0]", "div.download-btn", "iframe[src*=bank]"], recommended_action: "warn", summary: "Transparent iframe overlaying bank transfer page behind fake download button" },
+        eval_method: "gemini-3-flash-preview"
+      }
+    };
+
+    window.demoScan = async function(page) {
+      scanError.style.display = 'none';
+      scanLoading.style.display = '';
+      scanBtn.disabled = true;
+      resultSection.style.display = 'none';
+      var demoLabels = {phishing: 'Phishing Page', clean: 'Clean Page', clickjack: 'Clickjack Page'};
+      urlInput.value = demoLabels[page] || page;
+
+      try {
+        var resp = await fetch('/api/web-sandbox/scan-demo', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({page: page}),
+        });
+        if (!resp.ok) throw new Error('API ' + resp.status);
+        var data = await resp.json();
+        renderVerdict(data);
+        loadHistory();
+      } catch (err) {
+        // Fallback: use client-side mock when backend not running
+        var mock = _DEMO_MOCK_RESULTS[page];
+        if (mock) {
+          renderVerdict(mock);
+          loadHistory();
+        } else {
+          scanError.textContent = err.message || 'Demo scan failed';
+          scanError.style.display = '';
+        }
+      } finally {
+        scanLoading.style.display = 'none';
+        scanBtn.disabled = false;
+      }
+    };
+
+    // Load history on page load
+    loadHistory();
+
+    // --- Language Toggle ---
+    const WS_I18N = {
+      en: {
+        pageTitle: 'Causal Web Sandbox',
+        pageSubtitle: 'Evidence-based web security analysis powered by Gemini structured output',
+        geminiKeyTitle: 'Gemini API Key',
+        geminiKeyDesc: 'Enter your Google AI Studio API key to enable Gemini-powered analysis across all features (Council, Scanner, RedTeam, Web Sandbox).',
+        geminiKeyDescConfigured: 'Gemini API key is configured. All AI features are active.',
+        geminiSetBtn: 'Set Key',
+        geminiUpdateBtn: 'Update',
+        geminiKeyPlaceholder: 'AIza...',
+        geminiKeyPlaceholderConfigured: 'Key is set. Enter new key to replace.',
+        geminiNotConfigured: 'Not configured',
+        geminiSetting: 'Setting...',
+        targetUrl: 'Target URL',
+        scanBtn: 'Scan',
+        demoLabel: 'Try demo:',
+        demoBtnPhishing: 'Phishing Page',
+        demoBtnClean: 'Clean Page',
+        demoBtnClickjack: 'Clickjack Page',
+        scanning: 'Scanning page...',
+        historyTitle: 'Recent Verdicts',
+        historyEmpty: 'No scans yet. Enter a URL above to start.',
+        // Result meta labels
+        lblConfidence: 'Confidence',
+        lblAction: 'Action',
+        geminiOutput: 'Gemini Structured Output',
+        // Section titles
+        pageBundle: 'Page Bundle',
+        riskIndicators: 'Risk Indicators',
+        domThreats: 'DOM Threats',
+        networkTraces: 'Network Traces',
+        a11yIssues: 'Accessibility Issues',
+        // Bundle meta
+        bundleSha: 'SHA256', bundleSize: 'Size', bundleStatus: 'Status',
+        bundleResources: 'Resources', bundleBlocked: 'Blocked', bundleId: 'Bundle ID',
+        // DOM table headers
+        thTag: 'Tag', thThreatType: 'Threat Type', thSelector: 'Selector', thAttributes: 'Attributes',
+        // Network table headers
+        thSource: 'Source', thUrl: 'URL', thNetMethod: 'Method', thThreat: 'Threat',
+        // A11y table headers
+        thRole: 'Role', thName: 'Name', thDeceptiveLabel: 'Deceptive Label', deceptive: 'Deceptive',
+        // History table headers
+        thClassification: 'Classification', thConfidence: 'Confidence',
+        thAction: 'Action', thMethod: 'Method', thTime: 'Time', thSummary: 'Finding',
+        // Classification values
+        clsBenign: 'Benign', clsPhishing: 'Phishing', clsMalware: 'Malware',
+        clsClickjacking: 'Clickjacking', clsScam: 'Scam', clsDeceptiveUi: 'Deceptive UI',
+        // Empty states
+        noIndicators: 'No risk indicators found',
+        noDomThreats: 'No DOM threats detected',
+        noNetTraces: 'No suspicious network requests',
+        noA11y: 'No deceptive labels detected',
+        // Detail row
+        detailSummary: 'Summary', detailRiskIndicators: 'Risk Indicators', detailEvidence: 'Evidence',
+        // Compare panel
+        compareTitle: 'Detection Comparison',
+        compareTraditionalTitle: 'Rule-based Only',
+        compareSemanticTitle: 'With Gemini 3 Agent',
+        compareNoThreats: 'NO THREATS DETECTED',
+        geminiNotActive: 'GEMINI NOT ACTIVE',
+        geminiConfigCta: 'Set API key above to enable Gemini analysis',
+        geminiFallbackNote: 'rule-based fallback',
+        compare0Matches: '0 pattern matches',
+        compareIndicators: ' risk indicators found',
+        compareNoData: 'N/A',
+        compareNoRuleData: 'Rule-based scan unavailable',
+        compareRuleDetail: 'Pattern matching: DGA detection, suspicious TLD, brand impersonation checks. No semantic understanding of page intent.',
+        compareGeminiCaught: 'Gemini 3 caught what rules missed!',
+        compareBothDetected: 'Both detected threats',
+        compareWhyGemini: 'Why Gemini 3?',
+        narrativeTitle: 'Attack Narrative',
+        mcpThreatsTitle: 'MCP-Specific Threats',
+      },
+      ja: {
+        pageTitle: 'Causal Web Sandbox',
+        pageSubtitle: 'Gemini 構造化出力を活用したエビデンスベースの Web セキュリティ分析',
+        geminiKeyTitle: 'Gemini API Key',
+        geminiKeyDesc: 'Google AI Studio の API キーを入力すると、全 AI 機能（Council, Scanner, RedTeam, Web Sandbox）が有効になります。',
+        geminiKeyDescConfigured: 'Gemini API キーは設定済みです。全 AI 機能が有効です。',
+        geminiSetBtn: 'キーを設定',
+        geminiUpdateBtn: '更新',
+        geminiKeyPlaceholder: 'AIza...',
+        geminiKeyPlaceholderConfigured: '設定済み。新しいキーで置き換え可能です。',
+        geminiNotConfigured: '未設定',
+        geminiSetting: '設定中...',
+        targetUrl: '対象 URL',
+        scanBtn: 'スキャン',
+        demoLabel: 'デモ:',
+        demoBtnPhishing: 'フィッシング',
+        demoBtnClean: '安全なページ',
+        demoBtnClickjack: 'クリックジャック',
+        scanning: 'ページをスキャン中...',
+        historyTitle: 'スキャン履歴',
+        historyEmpty: 'スキャン履歴がありません。上の入力欄に URL を入力してください。',
+        // Result meta labels
+        lblConfidence: '信頼度',
+        lblAction: 'アクション',
+        geminiOutput: 'Gemini 構造化出力',
+        // Section titles
+        pageBundle: 'ページバンドル',
+        riskIndicators: 'リスク指標',
+        domThreats: 'DOM 脅威',
+        networkTraces: 'ネットワーク通信',
+        a11yIssues: 'アクセシビリティ問題',
+        // Bundle meta
+        bundleSha: 'SHA256', bundleSize: 'サイズ', bundleStatus: 'ステータス',
+        bundleResources: 'リソース', bundleBlocked: 'ブロック済', bundleId: 'バンドルID',
+        // DOM table headers
+        thTag: 'タグ', thThreatType: '脅威タイプ', thSelector: 'セレクター', thAttributes: '属性',
+        // Network table headers
+        thSource: 'ソース', thUrl: 'URL', thNetMethod: 'メソッド', thThreat: '脅威',
+        // A11y table headers
+        thRole: 'ロール', thName: '名前', thDeceptiveLabel: '偽装ラベル', deceptive: '偽装',
+        // History table headers
+        thClassification: '分類', thConfidence: '信頼度',
+        thAction: 'アクション', thMethod: '手法', thTime: '時刻', thSummary: '検出内容',
+        // Classification values
+        clsBenign: '安全', clsPhishing: 'フィッシング', clsMalware: 'マルウェア',
+        clsClickjacking: 'クリックジャッキング', clsScam: '詐欺', clsDeceptiveUi: '偽装UI',
+        // Empty states
+        noIndicators: 'リスク指標なし',
+        noDomThreats: 'DOM 脅威は検出されませんでした',
+        noNetTraces: '不審なネットワーク通信はありません',
+        noA11y: '偽装ラベルは検出されませんでした',
+        // Detail row
+        detailSummary: '概要', detailRiskIndicators: 'リスク指標', detailEvidence: '証拠',
+        // Compare panel
+        compareTitle: '検出方式の比較',
+        compareTraditionalTitle: 'ルールベースのみ',
+        compareSemanticTitle: 'Gemini 3 エージェント付き',
+        compareNoThreats: '脅威検出なし',
+        geminiNotActive: 'GEMINI 未設定',
+        geminiConfigCta: '上のAPI Keyを設定してGemini分析を有効化',
+        geminiFallbackNote: 'ルールベースにフォールバック',
+        compare0Matches: 'パターン一致 0件',
+        compareIndicators: ' 件のリスク指標を検出',
+        compareNoData: 'N/A',
+        compareNoRuleData: 'ルールベーススキャン不可',
+        compareRuleDetail: 'パターンマッチング: DGA検出、不審TLD、ブランド偽装チェック。ページの意図に対するセマンティック理解なし。',
+        compareGeminiCaught: 'ルールが見逃した脅威をGemini 3が検出！',
+        compareBothDetected: '両方式で脅威を検出',
+        compareWhyGemini: 'なぜGemini 3？',
+        narrativeTitle: '攻撃シナリオ',
+        mcpThreatsTitle: 'MCP固有の脅威',
+      }
+    };
+    const LANG_KEY = 'suite_language';
+    function getWsLang() {
+      try { return localStorage.getItem(LANG_KEY) || 'en'; } catch (e) { return 'en'; }
+    }
+    var _wsGeminiConfigured = false;
+    var _wsVerdicts = [];
+    function applyWsI18n(lang) {
+      const d = WS_I18N[lang] || WS_I18N.en;
+      const el = (id) => document.getElementById(id);
+      // Page header
+      if (el('pageTitle')) el('pageTitle').textContent = d.pageTitle;
+      if (el('pageSubtitle')) el('pageSubtitle').textContent = d.pageSubtitle;
+      // Gemini setup
+      if (el('geminiKeyTitle')) el('geminiKeyTitle').textContent = d.geminiKeyTitle;
+      if (el('geminiKeyDesc')) el('geminiKeyDesc').textContent = _wsGeminiConfigured ? d.geminiKeyDescConfigured : d.geminiKeyDesc;
+      if (el('geminiKeyBtn') && !el('geminiKeyBtn').disabled) {
+        el('geminiKeyBtn').textContent = _wsGeminiConfigured ? d.geminiUpdateBtn : d.geminiSetBtn;
+      }
+      if (el('geminiKeyInput')) {
+        el('geminiKeyInput').placeholder = _wsGeminiConfigured ? d.geminiKeyPlaceholderConfigured : d.geminiKeyPlaceholder;
+      }
+      // Scan form
+      if (el('targetUrlLabel')) el('targetUrlLabel').textContent = d.targetUrl;
+      if (el('scanBtn') && !el('scanBtn').disabled) el('scanBtn').textContent = d.scanBtn;
+      if (el('demoLabel')) el('demoLabel').textContent = d.demoLabel;
+      if (el('demoBtnPhishing')) el('demoBtnPhishing').textContent = d.demoBtnPhishing;
+      if (el('demoBtnClean')) el('demoBtnClean').textContent = d.demoBtnClean;
+      if (el('demoBtnClickjack')) el('demoBtnClickjack').textContent = d.demoBtnClickjack;
+      if (el('scanLoadingText')) el('scanLoadingText').textContent = d.scanning;
+      // Result meta labels
+      if (el('lblConfidence')) el('lblConfidence').textContent = d.lblConfidence;
+      if (el('lblAction')) el('lblAction').textContent = d.lblAction;
+      // Section titles
+      if (el('narrativeTitle')) el('narrativeTitle').textContent = d.narrativeTitle || 'Attack Narrative';
+      if (el('mcpThreatsTitle')) el('mcpThreatsTitle').textContent = d.mcpThreatsTitle || 'MCP-Specific Threats';
+      if (el('pageBundleTitle')) el('pageBundleTitle').textContent = d.pageBundle;
+      if (el('riskIndicatorsTitle')) el('riskIndicatorsTitle').textContent = d.riskIndicators;
+      if (el('domThreatsTitle')) el('domThreatsTitle').textContent = d.domThreats;
+      if (el('netTracesTitle')) el('netTracesTitle').textContent = d.networkTraces;
+      if (el('a11yIssuesTitle')) el('a11yIssuesTitle').textContent = d.a11yIssues;
+      // Empty states
+      if (el('indicatorsEmpty')) el('indicatorsEmpty').textContent = d.noIndicators;
+      if (el('domEmpty')) el('domEmpty').textContent = d.noDomThreats;
+      if (el('netEmpty')) el('netEmpty').textContent = d.noNetTraces;
+      if (el('a11yEmpty')) el('a11yEmpty').textContent = d.noA11y;
+      // Result table headers
+      var th = el('domThead');
+      if (th) th.innerHTML = '<tr><th>' + [d.thTag, d.thThreatType, d.thSelector, d.thAttributes].map(escapeHtml).join('</th><th>') + '</th></tr>';
+      th = el('netThead');
+      if (th) th.innerHTML = '<tr><th>' + [d.thSource, d.thUrl, d.thNetMethod, d.thThreat].map(escapeHtml).join('</th><th>') + '</th></tr>';
+      th = el('a11yThead');
+      if (th) th.innerHTML = '<tr><th>' + [d.thRole, d.thName, d.thDeceptiveLabel].map(escapeHtml).join('</th><th>') + '</th></tr>';
+      // History section
+      if (el('historyTitle')) {
+        const count = el('historyCount') ? el('historyCount').textContent : '0';
+        el('historyTitle').innerHTML = escapeHtml(d.historyTitle) + ' <span class="count" id="historyCount">' + escapeHtml(count) + '</span>';
+      }
+      if (el('historyEmpty')) el('historyEmpty').textContent = d.historyEmpty;
+      th = el('historyThead');
+      if (th) th.innerHTML = '<tr><th></th><th>URL</th><th>' + [d.thClassification, d.thConfidence, d.thSummary, d.thAction, d.thTime].map(escapeHtml).join('</th><th>') + '</th></tr>';
+      // Re-render history with new language
+      renderHistoryTable(lang);
+      // Lang button active state
+      const langJaEl = el('langJa'), langEnEl = el('langEn');
+      if (langJaEl) langJaEl.classList.toggle('active', lang === 'ja');
+      if (langEnEl) langEnEl.classList.toggle('active', lang === 'en');
+    }
+    const langJa = document.getElementById('langJa');
+    const langEn = document.getElementById('langEn');
+    if (langJa) langJa.addEventListener('click', () => {
+      try { localStorage.setItem(LANG_KEY, 'ja'); } catch (_) {}
+      applyWsI18n('ja');
+    });
+    if (langEn) langEn.addEventListener('click', () => {
+      try { localStorage.setItem(LANG_KEY, 'en'); } catch (_) {}
+      applyWsI18n('en');
+    });
+    applyWsI18n(getWsLang());
+  </script>
+</body>
+
+</html>

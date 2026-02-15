@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCP Gateway Suite - Evidence Pack</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;600;700&display=swap');
+
+    html {
+      background: #f9fafb;
+    }
+
+    body {
+      opacity: 1;
+      transition: opacity 0.08s ease-out;
+    }
+
+    body.loading {
+      opacity: 0;
+    }
+
+    :root {
+      --primary: #0066ff;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      line-height: 1.5;
+      padding-top: 56px;
+    }
+
+    .nav {
+      background: var(--gray-900);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      color: #fff;
+      font-weight: 700;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-brand svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 4px;
+      margin-left: 40px;
+    }
+
+    .nav-link {
+      color: var(--gray-300);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+
+    .nav-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-link.active {
+      color: #fff;
+      background: var(--primary);
+    }
+
+    .nav-status {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--gray-300);
+      font-size: 13px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .page-subtitle {
+      color: var(--gray-600);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border: 1px solid var(--gray-300);
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.15s;
+      color: var(--gray-700);
+    }
+
+    .lang-btn:hover {
+      background: var(--gray-50);
+    }
+
+    .lang-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-200);
+      margin: 16px 0;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 8px 16px;
+      font-size: 14px;
+    }
+
+    .meta-key {
+      font-weight: 600;
+      color: var(--gray-600);
+    }
+
+    .meta-val {
+      color: var(--gray-900);
+      word-break: break-word;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pill.phishing { background: #fee2e2; color: #991b1b; }
+    .pill.benign { background: #dcfce7; color: #166534; }
+    .pill.malware { background: #fef3c7; color: #92400e; }
+    .pill.block { background: #fee2e2; color: #991b1b; }
+    .pill.allow { background: #dcfce7; color: #166534; }
+    .pill.warn { background: #fef3c7; color: #92400e; }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .timeline-step {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timeline-content {
+      background: var(--gray-50);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .timeline-content strong {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .timeline-content .muted {
+      color: var(--gray-600);
+      font-size: 12px;
+    }
+
+    .table-simple {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .table-simple th {
+      background: var(--gray-50);
+      font-weight: 600;
+      text-align: left;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .table-simple td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .table-simple tr:last-child td {
+      border-bottom: none;
+    }
+
+    details {
+      margin-top: 12px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 14px;
+      user-select: none;
+    }
+
+    summary:hover {
+      text-decoration: underline;
+    }
+
+    pre {
+      background: var(--gray-900);
+      color: #e5e7eb;
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--gray-600);
+      padding: 24px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="nav">
+    <div class="nav-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+      </svg>
+      MCP Gateway Suite
+    </div>
+    <div class="nav-links">
+      <a href="settings_environments.html" class="nav-link">Environments</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="scans.html" class="nav-link">Scans</a>
+      <a href="allowlist.html" class="nav-link">AllowList</a>
+      <a href="web_sandbox.html" class="nav-link">Web Sandbox</a>
+      <a href="audit_log.html" class="nav-link">Audit Log</a>
+      <a href="evidence_pack.html" class="nav-link">Evidence Pack</a>
+    </div>
+    <div class="nav-status">
+      <span class="status-dot"></span>
+      Demo Mode
+    </div>
+  </nav>
+
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <div>
+        <h1 class="page-title" id="pageTitle">Evidence Pack</h1>
+        <p class="page-subtitle" id="pageSubtitle">Consolidated audit trail with decision pipeline and deterministic config</p>
+      </div>
+      <div style="display: flex; gap: 4px;">
+        <button type="button" class="lang-btn" id="langJa" data-lang="ja">JA</button>
+        <button type="button" class="lang-btn" id="langEn" data-lang="en">EN</button>
+      </div>
+    </div>
+
+    <div id="content"></div>
+  </div>
+
+  <script src="mock_data.js"></script>
+  <script src="api_client.js"></script>
+  <script>
+    (function () {
+      if (!window.location || !window.location.pathname) return;
+      const currentFile = window.location.pathname.split('/').pop() || 'evidence_pack.html';
+      document.querySelectorAll('.nav-link').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentFile) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    })();
+  </script>
+  <script>
+    // --- i18n dictionary ---
+    var EP_I18N = {
+      en: {
+        title: 'Evidence Pack',
+        subtitle: 'Consolidated audit trail with decision pipeline and deterministic config',
+        emptyList: 'No evidence packs yet. Scan a URL in Web Sandbox to generate evidence.',
+        notFound: 'Evidence Pack not found for run_id:',
+        headerTitle: 'Evidence Pack Header',
+        runId: 'Run ID',
+        timestamp: 'Timestamp',
+        classification: 'Classification',
+        confidence: 'Confidence',
+        recommendedAction: 'Recommended Action',
+        eventCount: 'Event Count',
+        evalMethod: 'Eval Method',
+        pipelineTrace: 'Pipeline Trace',
+        deterministicConfig: 'Deterministic Config',
+        paramCol: 'Parameter',
+        valueCol: 'Value',
+        rawEvidence: 'Raw Evidence',
+        viewEvents: 'View full JSONL events',
+        events: 'events',
+        pipelineSteps: 'pipeline steps',
+        view: 'View',
+        backToList: '&larr; Back to list',
+      },
+      ja: {
+        title: 'エビデンスパック',
+        subtitle: '判定パイプラインと決定論的設定を含む統合監査証跡',
+        emptyList: 'エビデンスパックはまだありません。Web Sandbox で URL をスキャンしてください。',
+        notFound: '指定された run_id のエビデンスパックが見つかりません:',
+        headerTitle: 'エビデンスパック ヘッダー',
+        runId: '実行 ID',
+        timestamp: 'タイムスタンプ',
+        classification: '分類',
+        confidence: '信頼度',
+        recommendedAction: '推奨アクション',
+        eventCount: 'イベント数',
+        evalMethod: '評価方法',
+        pipelineTrace: 'パイプライン トレース',
+        deterministicConfig: '決定論的設定',
+        paramCol: 'パラメータ',
+        valueCol: '値',
+        rawEvidence: '生エビデンス',
+        viewEvents: 'JSONL イベント全件表示',
+        events: '件',
+        pipelineSteps: 'パイプラインステップ',
+        view: '詳細',
+        backToList: '&larr; 一覧に戻る',
+      }
+    };
+
+    function getEpLang() { return (window.getLanguage ? window.getLanguage() : 'en'); }
+    function t(key) { var d = EP_I18N[getEpLang()] || EP_I18N.en; return d[key] || EP_I18N.en[key] || key; }
+
+    var content = document.getElementById('content');
+    var apiClient = window.apiClient || {};
+    var urlParams = new URLSearchParams(window.location.search);
+    var runId = urlParams.get('run_id');
+
+    function escapeHtml(str) {
+      if (str == null) return '';
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    function formatTimestamp(ts) {
+      if (!ts) return '-';
+      var d = new Date(ts);
+      if (isNaN(d.getTime())) return '-';
+      var locale = getEpLang() === 'ja' ? 'ja-JP' : 'en-US';
+      return d.toLocaleString(locale, { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    }
+
+    var CLASSIFICATION_CLASSES = {'benign':'info','phishing':'danger','malware':'danger','clickjacking':'warn','scam':'danger','deceptive_ui':'warn'};
+    var ACTION_CLASSES = {'allow':'info','warn':'warn','block':'danger'};
+
+    // --- cached data for re-render on lang switch ---
+    var _cachedPacks = null;
+    var _cachedPack = null;
+
+    function renderPackList(packs) {
+      _cachedPacks = packs;
+      if (!packs || packs.length === 0) {
+        content.innerHTML = '<div class="empty">' + t('emptyList') + '</div>';
+        return;
+      }
+      var html = '<div style="display:grid;gap:16px;">';
+      packs.forEach(function(p) {
+        var classCls = CLASSIFICATION_CLASSES[p.classification] || 'info';
+        var actionCls = ACTION_CLASSES[p.recommended_action] || 'warn';
+        var steps = (p.pipeline_trace || []).length;
+        var borderColor = classCls === 'danger' ? 'danger' : classCls === 'warn' ? 'warn' : 'success';
+        html += '<a href="evidence_pack.html?run_id=' + encodeURIComponent(p.run_id) + '" style="text-decoration:none;color:inherit;">'
+          + '<div class="card" style="cursor:pointer;transition:all 0.15s;border-left:4px solid var(--' + borderColor + ');" onmouseover="this.style.boxShadow=\'0 4px 12px rgba(0,0,0,0.1)\';this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.boxShadow=\'\';this.style.transform=\'\'">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">'
+          + '<div style="display:flex;align-items:center;gap:12px;">'
+          + '<span class="pill ' + classCls + '" style="font-size:13px;">' + escapeHtml((p.classification||'').toUpperCase()) + '</span>'
+          + '<code style="font-size:13px;color:var(--muted);">' + escapeHtml(p.run_id) + '</code>'
+          + '</div>'
+          + '<div style="display:flex;align-items:center;gap:16px;font-size:13px;color:var(--muted);">'
+          + '<span>' + (p.confidence*100).toFixed(0) + '% ' + t('confidence') + '</span>'
+          + '<span class="pill ' + actionCls + '" style="font-size:12px;">' + escapeHtml(p.recommended_action) + '</span>'
+          + '<span>' + steps + ' ' + t('pipelineSteps') + '</span>'
+          + '<span>' + formatTimestamp(p.timestamp) + '</span>'
+          + '<span style="color:var(--primary);font-weight:600;">' + t('view') + ' &rarr;</span>'
+          + '</div></div>'
+          + '<div style="margin-top:8px;font-size:13px;color:var(--muted);">'
+          + '<code style="font-size:12px;">' + escapeHtml(p.eval_method||'N/A') + '</code>'
+          + (p.deterministic_config ? ' &middot; temp=' + p.deterministic_config.temperature + ', seed=' + p.deterministic_config.seed : '')
+          + '</div></div></a>';
+      });
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function renderPackDetail(pack) {
+      _cachedPack = pack;
+      var classCls = CLASSIFICATION_CLASSES[pack.classification] || 'info';
+      var actionCls = ACTION_CLASSES[pack.recommended_action] || 'warn';
+      var classificationPill = '<span class="pill ' + classCls + '">' + escapeHtml(pack.classification) + '</span>';
+      var actionPill = '<span class="pill ' + actionCls + '">' + escapeHtml(pack.recommended_action) + '</span>';
+
+      var html = '<div style="margin-bottom:16px;"><a href="evidence_pack.html" style="font-size:14px;font-weight:600;">' + t('backToList') + '</a></div>';
+      html += '<div class="card"><div class="card-title">' + t('headerTitle') + '</div><div class="meta-grid">'
+        + '<div class="meta-key">' + t('runId') + '</div><div class="meta-val"><code>' + escapeHtml(pack.run_id) + '</code></div>'
+        + '<div class="meta-key">' + t('timestamp') + '</div><div class="meta-val">' + formatTimestamp(pack.timestamp) + '</div>'
+        + '<div class="meta-key">' + t('classification') + '</div><div class="meta-val">' + classificationPill + '</div>'
+        + '<div class="meta-key">' + t('confidence') + '</div><div class="meta-val">' + (pack.confidence!=null ? (pack.confidence*100).toFixed(0)+'%' : 'N/A') + '</div>'
+        + '<div class="meta-key">' + t('recommendedAction') + '</div><div class="meta-val">' + actionPill + '</div>'
+        + '<div class="meta-key">' + t('eventCount') + '</div><div class="meta-val">' + pack.event_count + '</div>'
+        + '<div class="meta-key">' + t('evalMethod') + '</div><div class="meta-val"><code>' + escapeHtml(pack.eval_method||'N/A') + '</code></div>'
+        + '</div></div>';
+
+      if (pack.pipeline_trace && pack.pipeline_trace.length > 0) {
+        html += '<div class="card"><div class="card-title">' + t('pipelineTrace') + '</div><div class="timeline">';
+        pack.pipeline_trace.forEach(function(step) {
+          var statusBadge = (step.status==='ok'||step.status===200||step.status==='200') ? '<span class="pill allow">OK</span>'
+            : (step.status==='error'||step.status>=400) ? '<span class="pill block">ERROR</span>'
+            : '<span class="pill warn">' + escapeHtml(step.status) + '</span>';
+          html += '<div class="timeline-item"><div class="timeline-step">' + step.step + '</div><div class="timeline-content">'
+            + '<strong>' + escapeHtml(step.event) + ' ' + statusBadge + '</strong>'
+            + '<div class="muted">' + formatTimestamp(step.ts) + '</div>';
+          if (step.detail && Object.keys(step.detail).length > 0) {
+            html += '<div class="muted" style="margin-top:4px;">' + Object.entries(step.detail).slice(0,3).map(function(e){return escapeHtml(e[0])+': '+escapeHtml(String(e[1]).substring(0,60));}).join(', ') + '</div>';
+          }
+          html += '</div></div>';
+        });
+        html += '</div></div>';
+      }
+
+      if (pack.deterministic_config && Object.keys(pack.deterministic_config).length > 0) {
+        html += '<div class="card"><div class="card-title">' + t('deterministicConfig') + '</div>'
+          + '<table class="table-simple"><thead><tr><th>' + t('paramCol') + '</th><th>' + t('valueCol') + '</th></tr></thead><tbody>';
+        for (var _e of Object.entries(pack.deterministic_config)) {
+          html += '<tr><td><strong>' + escapeHtml(_e[0]) + '</strong></td><td><code>' + escapeHtml(JSON.stringify(_e[1])) + '</code></td></tr>';
+        }
+        html += '</tbody></table></div>';
+      }
+
+      var evLen = (pack.events||[]).length;
+      html += '<div class="card"><div class="card-title">' + t('rawEvidence') + '</div>'
+        + '<details><summary>' + t('viewEvents') + ' (' + evLen + ' ' + t('events') + ')</summary>'
+        + '<pre>' + escapeHtml(JSON.stringify(pack.events, null, 2)) + '</pre></details></div>';
+
+      content.innerHTML = html;
+    }
+
+    async function renderPack() {
+      if (!runId) {
+        var packs = [];
+        if (apiClient.fetchEvidencePacks) {
+          try { var res = await apiClient.fetchEvidencePacks(); if (res&&res.ok&&res.data) packs = res.data; } catch(_){}
+        }
+        if (packs.length===0 && window.suiteScanData && window.suiteScanData._DEMO_EVIDENCE_PACKS) {
+          packs = window.suiteScanData._DEMO_EVIDENCE_PACKS;
+        }
+        renderPackList(packs);
+        return;
+      }
+
+      var pack;
+      if (apiClient.fetchEvidencePack) {
+        var res = await apiClient.fetchEvidencePack(runId);
+        if (res && res.ok) pack = res.data;
+      }
+      if (!pack && window.suiteScanData && window.suiteScanData._DEMO_EVIDENCE_PACKS) {
+        pack = window.suiteScanData._DEMO_EVIDENCE_PACKS.find(function(p){return p.run_id===runId;});
+      }
+      if (!pack) {
+        content.innerHTML = '<div class="empty">' + t('notFound') + ' ' + escapeHtml(runId) + '</div>';
+        return;
+      }
+      renderPackDetail(pack);
+    }
+
+    function applyEpI18n() {
+      document.getElementById('pageTitle').textContent = t('title');
+      document.getElementById('pageSubtitle').textContent = t('subtitle');
+      // re-render content with new language
+      if (_cachedPack) renderPackDetail(_cachedPack);
+      else if (_cachedPacks) renderPackList(_cachedPacks);
+    }
+
+    renderPack();
+  </script>
+  <script>
+    var langJa = document.getElementById('langJa');
+    var langEn = document.getElementById('langEn');
+    function updateLangButtons() {
+      var lang = window.getLanguage ? window.getLanguage() : 'en';
+      if (langJa) langJa.classList.toggle('active', lang === 'ja');
+      if (langEn) langEn.classList.toggle('active', lang === 'en');
+    }
+    if (langJa) langJa.addEventListener('click', function() {
+      if (window.setLanguage) window.setLanguage('ja');
+      updateLangButtons();
+      applyEpI18n();
+    });
+    if (langEn) langEn.addEventListener('click', function() {
+      if (window.setLanguage) window.setLanguage('en');
+      updateLangButtons();
+      applyEpI18n();
+    });
+    // Apply stored language on load
+    (function() {
+      var lang = window.getLanguage ? window.getLanguage() : 'en';
+      if (lang === 'ja') applyEpI18n();
+      updateLangButtons();
+    })();
+  </script>
+</body>
+
+</html>
