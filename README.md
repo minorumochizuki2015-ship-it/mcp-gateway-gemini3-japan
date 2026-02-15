@@ -542,4 +542,11 @@ This gateway is designed for **local / internal network use**. Do not expose dir
 
 ## License
 
-MIT
+**Business Source License 1.1 (BSL 1.1)**
+
+- You may use, copy, modify, and create derivative works
+- **Commercial hosting as a Security Gateway Service is not permitted** without a commercial license
+- On 2030-02-15, the license automatically converts to **Apache License 2.0**
+- For commercial licensing inquiries: trae.2025.2026@gmail.com
+
+See [LICENSE](LICENSE) for full terms.
